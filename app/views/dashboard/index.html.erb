@@ -1,0 +1,459 @@
+<div>
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+    <div>
+      <h1>Dashboard</h1>
+      <p style="color: #666; margin: 0;">Welcome back, <%= @user.email %>!</p>
+    </div>
+    <div style="display: flex; gap: 1rem;">
+      <%= link_to "Add Transaction", new_transaction_path, style: "background: #27ae60; color: white; padding: 0.75rem 1.5rem; text-decoration: none; border-radius: 4px; white-space: nowrap;" %>
+      <% if @transactions.any? %>
+        <%= button_to "Run Forecast", generate_forecast_path, method: :post, style: "background: #9b59b6; color: white; padding: 0.75rem 1.5rem; border: none; border-radius: 4px; cursor: pointer; font-size: 1rem; white-space: nowrap;" %>
+      <% end %>
+    </div>
+  </div>
+
+  <% if @transactions.empty? %>
+    <div style="text-align: center; padding: 3rem; background: #f8f9fa; border-radius: 4px; margin-bottom: 2rem;">
+      <h2 style="color: #666;">No transaction data yet</h2>
+      <p style="color: #999; margin-bottom: 1.5rem;">Add transactions to see your financial insights and forecasts.</p>
+      <%= link_to "Add Transaction", new_transaction_path, style: "display: inline-block; background: #27ae60; color: white; padding: 1rem 2rem; text-decoration: none; border-radius: 4px; margin-right: 1rem;" %>
+      <%= link_to "Upload CSV", upload_transactions_path, style: "display: inline-block; background: #3498db; color: white; padding: 1rem 2rem; text-decoration: none; border-radius: 4px;" %>
+    </div>
+  <% else %>
+    <!-- Summary Cards -->
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
+      <div style="background: white; padding: 1.5rem; border-radius: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+        <h3 style="margin: 0 0 0.5rem 0; color: #666; font-size: 0.875rem; text-transform: uppercase;">Avg Monthly Income</h3>
+        <p style="margin: 0; font-size: 2rem; font-weight: bold; color: #27ae60;"><%= number_to_currency(@stats[:avg_monthly_income]) %></p>
+      </div>
+
+      <div style="background: white; padding: 1.5rem; border-radius: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+        <h3 style="margin: 0 0 0.5rem 0; color: #666; font-size: 0.875rem; text-transform: uppercase;">Avg Monthly Expenses</h3>
+        <p style="margin: 0; font-size: 2rem; font-weight: bold; color: #e74c3c;"><%= number_to_currency(@stats[:avg_monthly_expenses]) %></p>
+      </div>
+
+      <div style="background: white; padding: 1.5rem; border-radius: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+        <h3 style="margin: 0 0 0.5rem 0; color: #666; font-size: 0.875rem; text-transform: uppercase;">Avg Monthly Savings</h3>
+        <p style="margin: 0; font-size: 2rem; font-weight: bold; color: <%= @stats[:avg_monthly_savings] >= 0 ? '#27ae60' : '#e74c3c' %>;"><%= number_to_currency(@stats[:avg_monthly_savings]) %></p>
+      </div>
+
+      <div style="background: white; padding: 1.5rem; border-radius: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+        <h3 style="margin: 0 0 0.5rem 0; color: #666; font-size: 0.875rem; text-transform: uppercase;">Total Transactions</h3>
+        <p style="margin: 0; font-size: 2rem; font-weight: bold; color: #3498db;"><%= @stats[:transaction_count] %></p>
+      </div>
+    </div>
+
+    <!-- Charts Row -->
+    <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 1.5rem; margin-bottom: 2rem;">
+      <!-- Monthly Net Savings Chart -->
+      <div style="background: white; padding: 1.5rem; border-radius: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+        <h2 style="margin: 0 0 1rem 0;">Monthly Net Savings Trend</h2>
+        <canvas id="savingsChart" height="80"></canvas>
+      </div>
+
+      <!-- Category Breakdown Chart -->
+      <div style="background: white; padding: 1.5rem; border-radius: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+        <h2 style="margin: 0 0 1rem 0;">Expenses by Category</h2>
+        <canvas id="categoryChart"></canvas>
+      </div>
+    </div>
+
+    <!-- Forecast Section -->
+    <% if @forecast %>
+      <div style="background: white; padding: 1.5rem; border-radius: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); margin-bottom: 2rem;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+          <h2 style="margin: 0;">12-Month Savings Forecast</h2>
+          <small style="color: #666;">Generated: <%= @forecast.generated_at.strftime("%b %d, %Y at %I:%M %p") %></small>
+        </div>
+        <canvas id="forecastChart" height="80"></canvas>
+        <div style="margin-top: 1rem; padding: 1rem; background: #f8f9fa; border-radius: 4px;">
+          <h3 style="margin: 0 0 0.5rem 0;">Projection Summary</h3>
+          <p style="margin: 0; color: #666;">
+            Starting Balance: <strong><%= number_to_currency(@forecast.starting_balance) %></strong><br>
+            Projected Balance (12 months): <strong><%= number_to_currency(@forecast.starting_balance + @forecast.predicted_monthly_net_savings.sum) %></strong><br>
+            Expected Total Savings: <strong style="color: <%= (@forecast.predicted_monthly_net_savings.sum >= 0) ? '#27ae60' : '#e74c3c' %>;"><%= number_to_currency(@forecast.predicted_monthly_net_savings.sum) %></strong>
+          </p>
+        </div>
+      </div>
+
+      <!-- Scenario Simulation Section -->
+      <div style="background: white; padding: 1.5rem; border-radius: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); margin-bottom: 2rem;">
+        <h2 style="margin: 0 0 1rem 0;">What-If Scenario Simulator</h2>
+        <p style="color: #666; margin-bottom: 1.5rem;">Adjust the sliders below to see how changes to your savings and spending habits could impact your future balance.</p>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-bottom: 1.5rem;">
+          <div>
+            <label style="display: block; margin-bottom: 0.5rem; font-weight: bold;">Extra Monthly Savings: $<span id="savingsValue">0</span></label>
+            <input type="range" id="extraSavings" min="0" max="1000" step="50" value="0" style="width: 100%;">
+            <small style="color: #666;">Add extra savings each month</small>
+          </div>
+
+          <div>
+            <label style="display: block; margin-bottom: 0.5rem; font-weight: bold;">Reduce Expenses By: <span id="expenseValue">0</span>%</label>
+            <input type="range" id="expenseReduction" min="0" max="50" step="5" value="0" style="width: 100%;">
+            <small style="color: #666;">Reduce your monthly expenses</small>
+          </div>
+        </div>
+
+        <canvas id="scenarioChart" height="80"></canvas>
+
+        <div style="margin-top: 1rem; padding: 1rem; background: #e8f5e9; border-radius: 4px; border-left: 4px solid #27ae60;">
+          <h3 style="margin: 0 0 0.5rem 0; color: #27ae60;">Scenario Impact</h3>
+          <p id="scenarioImpact" style="margin: 0; color: #666;">
+            Adjust the sliders above to see the impact on your savings.
+          </p>
+        </div>
+      </div>
+
+      <!-- AI Insights Section -->
+      <div style="background: white; padding: 1.5rem; border-radius: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); margin-bottom: 2rem;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+          <h2 style="margin: 0;">AI Financial Insights</h2>
+          <%= form_with url: generate_ai_insights_path, method: :post, style: "margin: 0;", id: "aiInsightsForm" do |form| %>
+            <button type="submit" id="generateInsightsBtn" style="background: #3498db; color: white; padding: 0.75rem 1.5rem; border: none; border-radius: 4px; cursor: pointer; font-size: 1rem;">
+              <span id="btnText">Get AI Insights</span>
+              <span id="btnLoading" style="display: none;">Generating...</span>
+            </button>
+          <% end %>
+        </div>
+
+        <% if session[:ai_explanation].present? %>
+          <div style="background: #e3f2fd; padding: 1.5rem; border-radius: 4px; border-left: 4px solid #2196f3; margin-bottom: 1rem;">
+            <div style="color: #1976d2; white-space: pre-wrap; line-height: 1.6;">
+              <%= session[:ai_explanation] %>
+            </div>
+          </div>
+          <div style="background: #fff3cd; padding: 0.75rem; border-radius: 4px; font-size: 0.875rem;">
+            <strong>📚 Educational Only:</strong> This AI-generated explanation is for educational purposes only and should not be considered professional financial advice. Always consult with a qualified financial advisor for personalized guidance.
+          </div>
+        <% else %>
+          <div style="padding: 2rem; text-align: center; color: #666; background: #f8f9fa; border-radius: 4px;">
+            <p style="margin: 0;">Click "Get AI Insights" to receive an AI-generated explanation of your financial forecast and projections.</p>
+            <small style="color: #999; display: block; margin-top: 0.5rem;">This feature uses OpenAI to analyze your data and provide educational insights.</small>
+          </div>
+        <% end %>
+      </div>
+    <% end %>
+
+    <!-- Disclaimer -->
+    <div style="background: #fff3cd; padding: 1rem; border: 1px solid #ffc107; border-radius: 4px; margin-bottom: 2rem;">
+      <strong>⚠️ Important:</strong> This is not financial advice. FinTrack is an educational tool only.
+    </div>
+  <% end %>
+</div>
+
+<% unless @transactions.empty? %>
+<script>
+  // Monthly Savings Chart Data
+  const monthlyLabels = <%= raw @monthly_data.keys.map { |d| d.strftime('%b %Y') }.to_json %>;
+  const netSavings = <%= raw @monthly_data.values.map { |v| v[:net] }.to_json %>;
+
+  // Category Chart Data
+  const categoryLabels = <%= raw @category_data.keys.to_json %>;
+  const categoryValues = <%= raw @category_data.values.to_json %>;
+
+  // Colors for categories
+  const categoryColors = [
+    '#e74c3c', '#3498db', '#2ecc71', '#f39c12', '#9b59b6',
+    '#1abc9c', '#34495e', '#e67e22', '#95a5a6', '#d35400'
+  ];
+
+  // Monthly Savings Line Chart
+  const savingsCtx = document.getElementById('savingsChart').getContext('2d');
+  new Chart(savingsCtx, {
+    type: 'line',
+    data: {
+      labels: monthlyLabels,
+      datasets: [{
+        label: 'Net Savings',
+        data: netSavings,
+        borderColor: '#27ae60',
+        backgroundColor: 'rgba(46, 204, 113, 0.1)',
+        tension: 0.4,
+        fill: true
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: true,
+      plugins: {
+        legend: {
+          display: false
+        },
+        tooltip: {
+          callbacks: {
+            label: function(context) {
+              return 'Net Savings: $' + context.parsed.y.toFixed(2);
+            }
+          }
+        }
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+          ticks: {
+            callback: function(value) {
+              return '$' + value;
+            }
+          }
+        }
+      }
+    }
+  });
+
+  // Category Pie Chart
+  const categoryCtx = document.getElementById('categoryChart').getContext('2d');
+  new Chart(categoryCtx, {
+    type: 'doughnut',
+    data: {
+      labels: categoryLabels,
+      datasets: [{
+        data: categoryValues,
+        backgroundColor: categoryColors.slice(0, categoryLabels.length)
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: true,
+      plugins: {
+        legend: {
+          position: 'bottom',
+          labels: {
+            boxWidth: 12,
+            padding: 10,
+            font: {
+              size: 11
+            }
+          }
+        },
+        tooltip: {
+          callbacks: {
+            label: function(context) {
+              return context.label + ': $' + context.parsed.toFixed(2);
+            }
+          }
+        }
+      }
+    }
+  });
+
+  // Forecast Chart (if available)
+  <% if @forecast %>
+    const forecastLabels = [];
+    const forecastValues = [];
+    let cumulativeBalance = <%= @forecast.starting_balance %>;
+
+    <% @forecast.predicted_monthly_net_savings.each_with_index do |savings, index| %>
+      forecastLabels.push('<%= (index + 1).months.from_now.strftime('%b %Y') %>');
+      cumulativeBalance += <%= savings %>;
+      forecastValues.push(cumulativeBalance);
+    <% end %>
+
+    const forecastCtx = document.getElementById('forecastChart').getContext('2d');
+    new Chart(forecastCtx, {
+      type: 'line',
+      data: {
+        labels: forecastLabels,
+        datasets: [{
+          label: 'Projected Balance',
+          data: forecastValues,
+          borderColor: '#9b59b6',
+          backgroundColor: 'rgba(155, 89, 182, 0.1)',
+          tension: 0.4,
+          fill: true,
+          borderWidth: 3
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: true,
+        plugins: {
+          legend: {
+            display: false
+          },
+          tooltip: {
+            callbacks: {
+              label: function(context) {
+                return 'Projected Balance: $' + context.parsed.y.toFixed(2);
+              }
+            }
+          }
+        },
+        scales: {
+          y: {
+            beginAtZero: false,
+            ticks: {
+              callback: function(value) {
+                return '$' + value.toLocaleString();
+              }
+            }
+          }
+        }
+      }
+    });
+
+    // Scenario Chart
+    const scenarioCtx = document.getElementById('scenarioChart').getContext('2d');
+    let scenarioChart = new Chart(scenarioCtx, {
+      type: 'line',
+      data: {
+        labels: forecastLabels,
+        datasets: [
+          {
+            label: 'Baseline Forecast',
+            data: forecastValues,
+            borderColor: '#95a5a6',
+            backgroundColor: 'rgba(149, 165, 166, 0.1)',
+            tension: 0.4,
+            fill: false,
+            borderWidth: 2,
+            borderDash: [5, 5]
+          },
+          {
+            label: 'Scenario Projection',
+            data: forecastValues,
+            borderColor: '#27ae60',
+            backgroundColor: 'rgba(46, 204, 113, 0.1)',
+            tension: 0.4,
+            fill: true,
+            borderWidth: 3
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: true,
+        plugins: {
+          legend: {
+            display: true,
+            position: 'top'
+          },
+          tooltip: {
+            callbacks: {
+              label: function(context) {
+                return context.dataset.label + ': $' + context.parsed.y.toLocaleString();
+              }
+            }
+          }
+        },
+        scales: {
+          y: {
+            beginAtZero: false,
+            ticks: {
+              callback: function(value) {
+                return '$' + value.toLocaleString();
+              }
+            }
+          }
+        }
+      }
+    });
+
+    // Slider event listeners
+    const extraSavingsSlider = document.getElementById('extraSavings');
+    const expenseReductionSlider = document.getElementById('expenseReduction');
+    const savingsValueDisplay = document.getElementById('savingsValue');
+    const expenseValueDisplay = document.getElementById('expenseValue');
+    const scenarioImpactDisplay = document.getElementById('scenarioImpact');
+
+    let debounceTimer;
+
+    function updateScenario() {
+      const extraSavings = parseFloat(extraSavingsSlider.value);
+      const expenseReduction = parseFloat(expenseReductionSlider.value);
+
+      // Update displays
+      savingsValueDisplay.textContent = extraSavings;
+      expenseValueDisplay.textContent = expenseReduction;
+
+      // Debounce API call
+      clearTimeout(debounceTimer);
+      debounceTimer = setTimeout(() => {
+        fetch('<%= simulate_scenario_path %>', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-Token': document.querySelector('[name="csrf-token"]').content
+          },
+          body: JSON.stringify({
+            extra_monthly_savings: extraSavings,
+            expense_reduction_percent: expenseReduction
+          })
+        })
+        .then(response => response.json())
+        .then(data => {
+          if (data.success) {
+            // Update scenario chart
+            scenarioChart.data.datasets[1].data = data.scenario_balances;
+            scenarioChart.update();
+
+            // Update impact display
+            const impact = data.total_impact;
+            const impactFormatted = '$' + Math.abs(impact).toLocaleString();
+            const baselineFinal = '$' + data.baseline_final.toLocaleString();
+            const scenarioFinal = '$' + data.scenario_final.toLocaleString();
+
+            scenarioImpactDisplay.innerHTML = `
+              <strong>Baseline (12 months):</strong> ${baselineFinal}<br>
+              <strong>With Your Changes:</strong> ${scenarioFinal}<br>
+              <strong>Difference:</strong> <span style="color: ${impact >= 0 ? '#27ae60' : '#e74c3c'};">${impact >= 0 ? '+' : ''}${impactFormatted}</span>
+            `;
+          }
+        })
+        .catch(error => console.error('Error simulating scenario:', error));
+      }, 300);
+    }
+
+    extraSavingsSlider.addEventListener('input', updateScenario);
+    expenseReductionSlider.addEventListener('input', updateScenario);
+
+    // Update AI insights button to include current scenario values
+    const generateInsightsBtn = document.getElementById('generateInsightsBtn');
+    if (generateInsightsBtn) {
+      const aiInsightsForm = document.getElementById('aiInsightsForm');
+      const btnText = document.getElementById('btnText');
+      const btnLoading = document.getElementById('btnLoading');
+
+      aiInsightsForm.addEventListener('submit', function(e) {
+        // Show loading state
+        btnText.style.display = 'none';
+        btnLoading.style.display = 'inline';
+        generateInsightsBtn.disabled = true;
+        generateInsightsBtn.style.opacity = '0.6';
+
+        const extraSavings = parseFloat(extraSavingsSlider.value);
+        const expenseReduction = parseFloat(expenseReductionSlider.value);
+
+        // Add current slider values as hidden inputs if they're non-zero
+        if (extraSavings > 0 || expenseReduction > 0) {
+          // Remove any existing hidden fields for these params
+          this.querySelectorAll('input[name="extra_monthly_savings"], input[name="expense_reduction_percent"]').forEach(input => input.remove());
+
+          // Add new hidden fields with current values
+          const extraSavingsInput = document.createElement('input');
+          extraSavingsInput.type = 'hidden';
+          extraSavingsInput.name = 'extra_monthly_savings';
+          extraSavingsInput.value = extraSavings;
+          this.appendChild(extraSavingsInput);
+
+          const expenseReductionInput = document.createElement('input');
+          expenseReductionInput.type = 'hidden';
+          expenseReductionInput.name = 'expense_reduction_percent';
+          expenseReductionInput.value = expenseReduction;
+          this.appendChild(expenseReductionInput);
+        }
+      });
+    }
+  <% end %>
+
+  // Add loading state for forecast generation button
+  const forecastBtn = document.querySelector('button[formaction*="generate_forecast"]');
+  if (forecastBtn) {
+    forecastBtn.closest('form').addEventListener('submit', function() {
+      forecastBtn.disabled = true;
+      forecastBtn.style.opacity = '0.6';
+      forecastBtn.textContent = 'Generating...';
+    });
+  }
+</script>
+<% end %>

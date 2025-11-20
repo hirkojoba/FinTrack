@@ -1,0 +1,52 @@
+<div style="max-width: 600px; margin: 0 auto;">
+  <h1>Edit Transaction</h1>
+  <p style="color: #666; margin-bottom: 2rem;">
+    Update your transaction details below.
+  </p>
+
+  <%= form_with(model: @transaction, local: true) do |form| %>
+    <% if @transaction.errors.any? %>
+      <div style="background: #f8d7da; color: #721c24; padding: 1rem; border: 1px solid #f5c6cb; border-radius: 4px; margin-bottom: 1rem;">
+        <h2 style="margin-top: 0;">
+          <%= pluralize(@transaction.errors.count, "error") %> prohibited this transaction from being saved:
+        </h2>
+        <ul>
+          <% @transaction.errors.full_messages.each do |message| %>
+            <li><%= message %></li>
+          <% end %>
+        </ul>
+      </div>
+    <% end %>
+
+    <div style="margin-bottom: 1.5rem;">
+      <%= form.label :date, "Date", style: "display: block; margin-bottom: 0.5rem; font-weight: bold;" %>
+      <%= form.date_field :date, required: true, style: "width: 100%; padding: 0.75rem; border: 1px solid #ddd; border-radius: 4px; font-size: 1rem;" %>
+    </div>
+
+    <div style="margin-bottom: 1.5rem;">
+      <%= form.label :description, "Description", style: "display: block; margin-bottom: 0.5rem; font-weight: bold;" %>
+      <%= form.text_field :description, required: true, minlength: 2, style: "width: 100%; padding: 0.75rem; border: 1px solid #ddd; border-radius: 4px; font-size: 1rem;" %>
+    </div>
+
+    <div style="margin-bottom: 1.5rem;">
+      <%= form.label :amount, "Amount ($)", style: "display: block; margin-bottom: 0.5rem; font-weight: bold;" %>
+      <%= form.number_field :amount, step: 0.01, required: true, style: "width: 100%; padding: 0.75rem; border: 1px solid #ddd; border-radius: 4px; font-size: 1rem;" %>
+      <small style="color: #666;">
+        <strong>Tip:</strong> Expenses should be negative (e.g., -50.00), Income should be positive (e.g., 3000.00)
+      </small>
+    </div>
+
+    <div style="margin-bottom: 1.5rem;">
+      <%= form.label :category, "Category", style: "display: block; margin-bottom: 0.5rem; font-weight: bold;" %>
+      <%= form.select :category,
+        ["Income", "Housing", "Transportation", "Groceries", "Eating Out", "Utilities", "Entertainment", "Health & Fitness", "Uncategorized"],
+        {},
+        style: "width: 100%; padding: 0.75rem; border: 1px solid #ddd; border-radius: 4px; font-size: 1rem;" %>
+    </div>
+
+    <div style="margin-top: 2rem;">
+      <%= form.submit "Update Transaction", style: "background: #3498db; color: white; padding: 1rem 2rem; border: none; border-radius: 4px; font-size: 1rem; cursor: pointer;" %>
+      <%= link_to "Cancel", transactions_path, style: "margin-left: 1rem; color: #666; text-decoration: none;" %>
+    </div>
+  <% end %>
+</div>

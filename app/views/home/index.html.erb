@@ -1,0 +1,27 @@
+<div style="text-align: center; padding: 3rem 0;">
+  <h1 style="font-size: 3rem; margin-bottom: 1rem;">Welcome to FinTrack</h1>
+  <p style="font-size: 1.5rem; color: #666; margin-bottom: 2rem;">Your Autonomous Financial Advisor</p>
+
+  <p style="max-width: 800px; margin: 0 auto 2rem; line-height: 1.6; color: #555;">
+    FinTrack helps you understand your spending patterns, forecast your savings, and explore "what-if" scenarios
+    to make better financial decisions. Powered by machine learning and AI, FinTrack provides clear, actionable insights.
+  </p>
+
+  <p style="background: #fff3cd; padding: 1rem; border: 1px solid #ffc107; border-radius: 4px; max-width: 800px; margin: 0 auto 2rem;">
+    <strong>Important:</strong> This is not financial advice. FinTrack is an educational tool only.
+  </p>
+
+  <% if user_signed_in? %>
+    <div style="margin-top: 2rem;">
+      <h2>Welcome back, <%= current_user.email %>!</h2>
+      <p>Ready to track your finances?</p>
+      <%= link_to "Go to Dashboard", root_path, style: "display: inline-block; background: #2c3e50; color: white; padding: 1rem 2rem; text-decoration: none; border-radius: 4px; margin: 0.5rem;" %>
+      <%= link_to "View Transactions", "#", style: "display: inline-block; background: #3498db; color: white; padding: 1rem 2rem; text-decoration: none; border-radius: 4px; margin: 0.5rem;" %>
+    </div>
+  <% else %>
+    <div style="margin-top: 2rem;">
+      <%= link_to "Sign Up", new_user_registration_path, style: "display: inline-block; background: #27ae60; color: white; padding: 1rem 2rem; text-decoration: none; border-radius: 4px; margin: 0.5rem;" %>
+      <%= link_to "Sign In", new_user_session_path, style: "display: inline-block; background: #2c3e50; color: white; padding: 1rem 2rem; text-decoration: none; border-radius: 4px; margin: 0.5rem;" %>
+    </div>
+  <% end %>
+</div>

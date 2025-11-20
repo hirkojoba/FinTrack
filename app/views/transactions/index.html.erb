@@ -1,0 +1,49 @@
+<div>
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+    <h1>Your Transactions</h1>
+    <div>
+      <%= link_to "Add Transaction", new_transaction_path, style: "background: #27ae60; color: white; padding: 0.75rem 1.5rem; text-decoration: none; border-radius: 4px; margin-right: 1rem;" %>
+      <%= link_to "Upload CSV", upload_transactions_path, style: "background: #3498db; color: white; padding: 0.75rem 1.5rem; text-decoration: none; border-radius: 4px;" %>
+    </div>
+  </div>
+
+  <% if @transactions.any? %>
+    <table style="width: 100%; border-collapse: collapse; background: white; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+      <thead style="background: #f8f9fa;">
+        <tr>
+          <th style="padding: 1rem; text-align: left; border-bottom: 2px solid #dee2e6;">Date</th>
+          <th style="padding: 1rem; text-align: left; border-bottom: 2px solid #dee2e6;">Description</th>
+          <th style="padding: 1rem; text-align: left; border-bottom: 2px solid #dee2e6;">Category</th>
+          <th style="padding: 1rem; text-align: right; border-bottom: 2px solid #dee2e6;">Amount</th>
+          <th style="padding: 1rem; text-align: center; border-bottom: 2px solid #dee2e6;">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @transactions.each do |transaction| %>
+          <tr style="border-bottom: 1px solid #dee2e6;">
+            <td style="padding: 1rem;"><%= transaction.date.strftime("%b %d, %Y") %></td>
+            <td style="padding: 1rem;"><%= transaction.description %></td>
+            <td style="padding: 1rem;">
+              <span style="background: #e9ecef; padding: 0.25rem 0.5rem; border-radius: 3px; font-size: 0.875rem;">
+                <%= transaction.category || "Uncategorized" %>
+              </span>
+            </td>
+            <td style="padding: 1rem; text-align: right; font-weight: bold; color: <%= transaction.income? ? '#27ae60' : '#e74c3c' %>;">
+              <%= number_to_currency(transaction.amount) %>
+            </td>
+            <td style="padding: 1rem; text-align: center;">
+              <%= link_to "Edit", edit_transaction_path(transaction), style: "color: #3498db; text-decoration: none; margin-right: 1rem;" %>
+              <%= button_to "Delete", transaction_path(transaction), method: :delete, data: { confirm: "Are you sure?" }, style: "display: inline; background: none; border: none; color: #e74c3c; cursor: pointer; text-decoration: underline;" %>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  <% else %>
+    <div style="text-align: center; padding: 3rem; background: #f8f9fa; border-radius: 4px;">
+      <p style="font-size: 1.25rem; color: #666;">No transactions yet.</p>
+      <p style="color: #999;">Add your first transaction to get started!</p>
+      <%= link_to "Add Transaction", new_transaction_path, style: "display: inline-block; background: #27ae60; color: white; padding: 1rem 2rem; text-decoration: none; border-radius: 4px; margin-top: 1rem;" %>
+    </div>
+  <% end %>
+</div>
