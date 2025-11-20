@@ -1,0 +1,61 @@
+<div style="max-width: 800px; margin: 0 auto;">
+  <h1>Upload Transactions CSV</h1>
+  <p style="color: #666; margin-bottom: 2rem;">
+    Upload a CSV file containing your transaction history. The system will automatically categorize your transactions.
+  </p>
+
+  <div style="background: #e7f3ff; padding: 1.5rem; border-radius: 4px; border-left: 4px solid #3498db; margin-bottom: 2rem;">
+    <h3 style="margin-top: 0;">CSV Format Requirements</h3>
+    <p>Your CSV file must include the following columns (in any order):</p>
+    <ul>
+      <li><strong>date</strong> - Transaction date (YYYY-MM-DD format, e.g., 2024-01-15)</li>
+      <li><strong>description</strong> - Transaction description (e.g., "Starbucks Coffee")</li>
+      <li><strong>amount</strong> - Transaction amount (negative for expenses, positive for income)</li>
+      <li><strong>category</strong> - (Optional) Transaction category</li>
+    </ul>
+
+    <h4 style="margin-top: 1.5rem;">Example CSV:</h4>
+    <pre style="background: white; padding: 1rem; border-radius: 4px; overflow-x: auto;">date,description,amount,category
+2024-01-15,Starbucks Coffee,-5.50,
+2024-01-16,Monthly Salary,3000.00,Income
+2024-01-17,Grocery Store,-45.23,Groceries
+2024-01-18,Uber Ride,-12.00,</pre>
+    <p style="margin-bottom: 0;">
+      <strong>Note:</strong> Leave the category blank to let the system auto-categorize based on the description.
+    </p>
+  </div>
+
+  <%= form_with(url: import_transactions_path, multipart: true, local: true) do |form| %>
+    <div style="background: white; padding: 2rem; border: 2px dashed #ddd; border-radius: 4px; text-align: center;">
+      <div style="margin-bottom: 1.5rem;">
+        <%= form.file_field :file, accept: ".csv", required: true, style: "display: none;", id: "file-input" %>
+        <label for="file-input" style="display: inline-block; background: #3498db; color: white; padding: 1rem 2rem; border-radius: 4px; cursor: pointer;">
+          Choose CSV File
+        </label>
+      </div>
+
+      <p id="file-name" style="color: #666; margin-bottom: 1.5rem;">No file selected</p>
+
+      <%= form.submit "Upload & Import", style: "background: #27ae60; color: white; padding: 1rem 2rem; border: none; border-radius: 4px; font-size: 1rem; cursor: pointer;" %>
+      <%= link_to "Cancel", transactions_path, style: "margin-left: 1rem; color: #666; text-decoration: none;" %>
+    </div>
+  <% end %>
+
+  <script>
+    document.getElementById('file-input').addEventListener('change', function(e) {
+      const fileName = e.target.files[0]?.name || 'No file selected';
+      document.getElementById('file-name').textContent = fileName;
+    });
+  </script>
+
+  <div style="margin-top: 2rem; padding: 1rem; background: #fff3cd; border: 1px solid #ffc107; border-radius: 4px;">
+    <strong>Tips:</strong>
+    <ul style="margin: 0.5rem 0 0 0; padding-left: 1.5rem;">
+      <li>You can download transaction history from most banks in CSV format</li>
+      <li>Make sure your CSV uses comma (,) as the delimiter</li>
+      <li>The first row must contain column headers</li>
+      <li>Expenses should be negative numbers (e.g., -50.00)</li>
+      <li>Income should be positive numbers (e.g., 3000.00)</li>
+    </ul>
+  </div>
+</div>
