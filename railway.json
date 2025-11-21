@@ -1,0 +1,12 @@
+{
+  "$schema": "https://railway.app/railway.schema.json",
+  "build": {
+    "builder": "NIXPACKS",
+    "buildCommand": "bundle install && pip3 install -r ml_service/requirements.txt"
+  },
+  "deploy": {
+    "startCommand": "bundle exec rails server -p $PORT -e production",
+    "restartPolicyType": "ON_FAILURE",
+    "restartPolicyMaxRetries": 10
+  }
+}
