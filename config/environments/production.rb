@@ -3,9 +3,14 @@ require "active_support/core_ext/integer/time"
 Rails.application.configure do
   # Settings specified here will take precedence over those in config/application.rb.
 
+  # Disable loading credentials from encrypted file in production
+  config.require_master_key = false
+
   # Use SECRET_KEY_BASE environment variable for production
   # Falls back to SECRET_KEY_BASE_DUMMY for asset precompilation during build
-  config.secret_key_base = ENV['SECRET_KEY_BASE'] || ENV['SECRET_KEY_BASE_DUMMY']
+  config.secret_key_base = ENV.fetch('SECRET_KEY_BASE') do
+    ENV.fetch('SECRET_KEY_BASE_DUMMY', 'placeholder_for_build')
+  end
 
   # Code is not reloaded between requests.
   config.enable_reloading = false
