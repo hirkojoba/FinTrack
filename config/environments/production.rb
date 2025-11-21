@@ -4,7 +4,8 @@ Rails.application.configure do
   # Settings specified here will take precedence over those in config/application.rb.
 
   # Use SECRET_KEY_BASE environment variable for production
-  config.secret_key_base = ENV['SECRET_KEY_BASE']
+  # Falls back to SECRET_KEY_BASE_DUMMY for asset precompilation during build
+  config.secret_key_base = ENV['SECRET_KEY_BASE'] || ENV['SECRET_KEY_BASE_DUMMY']
 
   # Code is not reloaded between requests.
   config.enable_reloading = false
