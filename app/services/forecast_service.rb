@@ -60,7 +60,7 @@ class ForecastService
       income = trans.select(&:income?).sum(&:amount)
       expenses = trans.select(&:expense?).sum { |t| t.amount.abs }
       net = income - expenses
-      monthly_data[month] = net
+      monthly_data[month] = net.to_f  # Convert to float for JSON
     end
 
     monthly_data.sort.to_h
@@ -70,7 +70,7 @@ class ForecastService
     # Calculate net balance from all transactions
     income = transactions.select(&:income?).sum(&:amount)
     expenses = transactions.select(&:expense?).sum { |t| t.amount.abs }
-    income - expenses
+    (income - expenses).to_f
   end
 
   def call_ml_service(net_savings_history, forecast_horizon)
