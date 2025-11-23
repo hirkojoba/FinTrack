@@ -4,7 +4,7 @@ A personal finance tracker with ML-powered forecasting. Track your spending, vis
 
 ## Live Demo
 
-[View App](your-railway-url-here)
+https://fintrack-production-998b.up.railway.app/
 
 ## Screenshots
 
