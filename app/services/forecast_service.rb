@@ -77,7 +77,14 @@ class ForecastService
     # Path to Python script
     python_script = Rails.root.join('ml_service', 'forecast.py')
     # Use system python3 in production, venv in development
-    python_venv = Rails.env.production? ? 'python3' : Rails.root.join('ml_service', 'venv', 'bin', 'python3')
+    if Rails.env.production?
+      # Try to find python3 in common locations
+      python_venv = ['/usr/bin/python3', '/usr/local/bin/python3', 'python3'].find do |path|
+        system("which #{path} > /dev/null 2>&1") || File.exist?(path)
+      end || 'python3'
+    else
+      python_venv = Rails.root.join('ml_service', 'venv', 'bin', 'python3')
+    end
 
     # Prepare input JSON
     input_data = {
