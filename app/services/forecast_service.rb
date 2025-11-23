@@ -76,7 +76,8 @@ class ForecastService
   def call_ml_service(net_savings_history, forecast_horizon)
     # Path to Python script
     python_script = Rails.root.join('ml_service', 'forecast.py')
-    python_venv = Rails.root.join('ml_service', 'venv', 'bin', 'python3')
+    # Use system python3 in production, venv in development
+    python_venv = Rails.env.production? ? 'python3' : Rails.root.join('ml_service', 'venv', 'bin', 'python3')
 
     # Prepare input JSON
     input_data = {
