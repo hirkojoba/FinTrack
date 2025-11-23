@@ -25,11 +25,3 @@ A personal finance tracker with ML-powered forecasting. Track your spending, vis
 ## How it works
 
 The app uses linear regression to analyze your historical spending and predict future net savings.
-
-### CSV Import Format
-```csv
-date,description,amount,category
-2024-01-15,Salary,3000.00,Income
-2024-01-16,Groceries,-125.50,Groceries
-```
-(Expenses are negative, income is positive)
