@@ -6,6 +6,12 @@ A personal finance tracker with ML-powered forecasting. Track your spending, vis
 
 [View App](your-railway-url-here)
 
+## Screenshots
+
+![Dashboard](screenshots/dashboard.jpeg)
+![Transactions](screenshots/transactions.jpeg)
+![Financial Profile](screenshots/financial%20profile.jpeg)
+
 ## Features
 
 - Track income and expenses with automatic categorization
