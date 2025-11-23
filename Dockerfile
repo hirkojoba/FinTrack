@@ -1,4 +1,4 @@
-# Use Ruby base image
+# Use Ruby base image (with Python support)
 FROM ruby:3.2.3-slim
 
 # Install system dependencies including Python
