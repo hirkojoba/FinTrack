@@ -1,8 +1,8 @@
 [phases.setup]
-nixPkgs = ["python3", "python3Packages.pip"]
+nixPkgs = ["python311", "python311Packages.pip"]
 
 [phases.install]
-cmds = ["bundle install", "pip3 install -r ml_service/requirements.txt"]
+cmds = ["bundle install", "python3.11 -m pip install -r ml_service/requirements.txt"]
 
 [start]
 cmd = "bundle exec rails server -e production"

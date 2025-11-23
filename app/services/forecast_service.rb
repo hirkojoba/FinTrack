@@ -76,9 +76,9 @@ class ForecastService
   def call_ml_service(net_savings_history, forecast_horizon)
     # Path to Python script
     python_script = Rails.root.join('ml_service', 'forecast.py')
-    # Use system python3 in production, venv in development
+    # Use python3.11 in production (from nixpacks), venv in development
     python_venv = if Rails.env.production?
-      '/usr/bin/python3'
+      'python3.11'
     else
       Rails.root.join('ml_service', 'venv', 'bin', 'python3')
     end
