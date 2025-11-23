@@ -5,7 +5,7 @@
     "buildCommand": "bundle install && pip3 install -r ml_service/requirements.txt"
   },
   "deploy": {
-    "startCommand": "bundle exec rails server -b 0.0.0.0 -p ${PORT:-3000} -e production",
+    "startCommand": "bundle exec rails server -e production",
     "restartPolicyType": "ON_FAILURE",
     "restartPolicyMaxRetries": 10
   }
