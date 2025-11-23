@@ -34,3 +34,6 @@
 /config/*.key
 
 .env
+
+# Ignore Python virtual environment
+ml_service/venv/
