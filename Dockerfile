@@ -29,7 +29,7 @@ RUN bundle install && \
 
 # Install Python dependencies
 COPY ml_service/requirements.txt ml_service/
-RUN pip3 install --no-cache-dir -r ml_service/requirements.txt
+RUN pip3 install --break-system-packages --no-cache-dir -r ml_service/requirements.txt
 
 # Copy application code
 COPY . .
