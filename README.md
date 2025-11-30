@@ -6,6 +6,13 @@ A personal finance tracker with ML-powered forecasting. Track your spending, vis
 
 https://fintrack-production-998b.up.railway.app/
 
+## Tech Stack
+
+**Backend:** Ruby on Rails, PostgreSQL
+**Frontend:** JavaScript, Chart.js
+**ML:** Python with scikit-learn
+**Auth:** Devise
+
 ## Screenshots
 
 ![Dashboard](screenshots/dashboard.jpeg)
@@ -21,12 +28,6 @@ https://fintrack-production-998b.up.railway.app/
 - Run "what-if" scenarios to see how lifestyle changes affect your savings
 - AI-generated insights about your financial trends
 
-## Tech Stack
-
-**Backend:** Ruby on Rails, PostgreSQL
-**Frontend:** JavaScript, Chart.js
-**ML:** Python with scikit-learn
-**Auth:** Devise
 
 ## How it works
 
